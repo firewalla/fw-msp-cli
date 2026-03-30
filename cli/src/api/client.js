@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 const getBaseUrl = (domain) => {
-  const targetDomain = domain || process.env.FIREWALLA_DOMAIN || 'api.firewalla.net';
+  const targetDomain = domain || process.env.FIREWALLA_MSP_ID || 'api.firewalla.net';
   const cleanDomain = targetDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
   
   // Security: Only allow Firewalla domains to prevent token theft
@@ -17,11 +17,11 @@ const getBaseUrl = (domain) => {
 };
 
 const getClient = (options = {}) => {
-  const token = process.env.FIREWALLA_TOKEN;
+  const token = process.env.FIREWALLA_MSP_TOKEN;
   if (!token) {
     console.error(JSON.stringify({ 
       error: "Auth missing.", 
-      hint: "Run: export FIREWALLA_TOKEN='your_msp_api_token_here' or add to .env" 
+      hint: "Run: export FIREWALLA_MSP_TOKEN='your_msp_api_token_here' or add to .env" 
     }));
     process.exit(1);
   }
