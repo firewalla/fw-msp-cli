@@ -714,75 +714,28 @@
 {
   "results": [
     {
-      "ts": 1730447700.000,
-      "id": "alm_1a2b",
-      "device": { "name": "Laptop" },
-      "category": "Security",
-      "status": "active",
-      "message": "Malware site blocked"
-    },
-    {
-      "ts": 1730440000.000,
-      "id": "alm_3c4d",
-      "device": { "name": "Smart TV" },
-      "category": "Activity",
-      "status": "archived",
-      "message": "Abnormal Upload: 77.7 GB uploaded to 203.0.113.1"
+      "gid": "833f2dca-d16a-4b1e-9ad0-67f71bc5a0ef",
+      "aid": 16977,
+      "status": 1,
+      "ts": 1774867984.892,
+      "type": 12,
+      "count": 1,
+      "_type": "ALARM_VPN_RESTORE",
+      "activeTs": 1774867984.892,
+      "cloudaction": "",
+      "vpn": {
+        "deviceCount": 0,
+        "id": "8888_8888",
+        "name": "ipsec_test2",
+        "strict": false,
+        "subType": "",
+        "type": "ipsec"
+      },
+      "message": "3rd-Party VPN (IPsec) to ipsec_test2 is restored at 03:53 AM. Internet access on 0 device(s) is resumed."
     }
-  ]
-}
-```
-
-### List Active Alarms
-
-**Input:** `fw alarms list --params '{"status": "active"}'`  
-**API:** `GET /v2/alarms?status=active`  
-**Output:** Show only alarms that are currently active and require attention.
-
-```json
-{
-  "results": [
-    {
-      "ts": 1730447700.000,
-      "id": "alm_1a2b",
-      "device": { "name": "Laptop" },
-      "category": "Security",
-      "status": "active",
-      "message": "Malware site blocked"
-    }
-  ]
-}
-```
-
-### Alarms by Device
-
-**Input:** `fw alarms list --params '{"query": "device.id:[MAC]"}'`  
-**API:** `GET /v2/alarms?query=device.id:[MAC]`
-
-**Example:** `fw alarms list --params '{"query": "device.id:AA:BB:CC:DD:EE:FF"}'`  
-**API:** `GET /v2/alarms?query=device.id:AA:BB:CC:DD:EE:FF`  
-**Output:** Show the recent alarm history exclusively for a specific device.
-
-```json
-{
-  "results": [
-    {
-      "ts": 1730430000.000,
-      "id": "alm_9z8y",
-      "device": { "name": "My Iphone", "id": "AA:BB:CC:DD:EE:FF" },
-      "category": "Security",
-      "status": "active",
-      "message": "Malware site blocked"
-    },
-    {
-      "ts": 1730420000.000,
-      "id": "alm_7x6w",
-      "device": { "name": "My Iphone", "id": "AA:BB:CC:DD:EE:FF" },
-      "category": "Activity",
-      "status": "archived",
-      "message": "Abnormal Upload: 11.1GB uploaded to 203.0.113.2"
-    }
-  ]
+  ],
+  "next_cursor": "b2Zmc2V0IDM=",
+  "count": 1
 }
 ```
 
@@ -792,52 +745,7 @@
 **API:** `GET /v2/alarms?limit=5`  
 **Output:** Fetch a specific number of recent alarms (in this case, the 5 most recent).
 
-```json
-{
-  "results": [
-    {
-      "ts": 1730447700.000,
-      "id": "alm_1a2b",
-      "device": { "name": "Laptop" },
-      "category": "Security",
-      "status": "active",
-      "message": "Malware site blocked"
-    },
-    {
-      "ts": 1730440000.000,
-      "id": "alm_3c4d",
-      "device": { "name": "Smart TV" },
-      "category": "Activity",
-      "status": "archived",
-      "message": "Abnormal Upload: 77.7 GB uploaded to 203.0.113.1"
-    },
-    {
-      "ts": 1730430000.000,
-      "id": "alm_9z8y",
-      "device": { "name": "My Iphone" },
-      "category": "Security",
-      "status": "active",
-      "message": "Malware site blocked"
-    },
-    {
-      "ts": 1730420000.000,
-      "id": "alm_7x6w",
-      "device": { "name": "My Iphone" },
-      "category": "Activity",
-      "status": "archived",
-      "message": "Abnormal Upload: 11.1GB uploaded to 203.0.113.2"
-    },
-    {
-      "ts": 1730410000.000,
-      "id": "alm_5v4u",
-      "device": { "name": "NAS Server" },
-      "category": "Activity",
-      "status": "archived",
-      "message": "New device found"
-    }
-  ]
-}
-```
+**Note:** The API supports pagination via `limit` and `cursor` parameters. Device-based and status-based filtering are not supported by the Firewalla MSP API.
 ---
 
 ## Environment Variables
