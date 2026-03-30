@@ -19,7 +19,7 @@ Export your PAT (Personal Access Token) directly into your shell environment. AI
 ```
 bash
 export FIREWALLA_TOKEN="your_msp_api_token_here"
-export FIREWALLA_DOMAIN="your_subdomain_here.firewalla.net"
+export FIREWALLA_DOMAIN="yourdomain.firewalla.net"
 fw boxes list
 ```
 
