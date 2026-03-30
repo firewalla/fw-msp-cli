@@ -16,19 +16,11 @@ const alarms = program.command('alarms').description('Manage network alarms');
 
 alarms
   .command('list')
+  .description('List alarms from a specific box')
   .option('--box <name|gid>', 'Box Name or GID')
   .option('--params <json>', 'API filters')
   .action((options) => {
     Alarms.list({ ...options, ...program.opts() });
-  });
-
-alarms
-  .command('update')
-  .requiredOption('--id <id>', 'Alarm ID')
-  .option('--box <name|gid>', 'Box Name or GID')
-  .option('--json <json|@file>', 'JSON body or @file.json')
-  .action((options) => {
-    Alarms.update(options.id, { ...options, ...program.opts() });
   });
 
 program.parse(process.argv);
