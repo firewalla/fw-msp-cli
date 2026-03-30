@@ -745,7 +745,6 @@
 **API:** `GET /v2/alarms?limit=5`  
 **Output:** Fetch a specific number of recent alarms (in this case, the 5 most recent).
 
-**Note:** The API supports pagination via `limit` and `cursor` parameters. Device-based and status-based filtering are not supported by the Firewalla MSP API.
 ---
 
 ## Environment Variables
