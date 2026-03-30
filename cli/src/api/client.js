@@ -21,7 +21,7 @@ const getClient = (options = {}) => {
   if (!token) {
     console.error(JSON.stringify({ 
       error: "Auth missing.", 
-      hint: "Run: export FIREWALLA_TOKEN='your_token' or add to .env" 
+      hint: "Run: export FIREWALLA_TOKEN='your_msp_api_token_here' or add to .env" 
     }));
     process.exit(1);
   }

@@ -752,5 +752,5 @@
 | Variable | Description |
 |----------|-------------|
 | `FIREWALLA_MSP_TOKEN` | Your MSP access token |
-| `FIREWALLA_MSP_ID` | Your MSP domain (e.g., `yourdomain.firewalla.net`) |
+| `FIREWALLA_MSP_ID` | Your MSP domain (e.g., `your_subdomain.firewalla.net`) |
 | `FIREWALLA_BOX_GID` | Your Firewalla box GID (optional if only one box) |
