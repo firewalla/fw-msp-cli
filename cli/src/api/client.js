@@ -1,24 +1,34 @@
 const axios = require('axios');
 const fs = require('fs');
 
-const API_BASE_URL = 'https://api.firewalla.net/v2';
+/**
+ * Construct the Base URL
+ * Priority: 1. Global Flag, 2. Env Var, 3. Default
+ */
+const getBaseUrl = (domain) => {
+  const targetDomain = domain || process.env.FIREWALLA_DOMAIN || 'api.firewalla.net';
+  const cleanDomain = targetDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  return `https://${cleanDomain}/v2`;
+};
 
-const getClient = (debug = false) => {
+const getClient = (options = {}) => {
   const token = process.env.FIREWALLA_TOKEN;
   if (!token) {
-    console.error(JSON.stringify({ error: "Auth missing. Set FIREWALLA_TOKEN env var." }));
+    console.error(JSON.stringify({ 
+      error: "Auth missing.", 
+      hint: "Run: export FIREWALLA_TOKEN='your_token' or add to .env" 
+    }));
     process.exit(1);
   }
 
   const instance = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: getBaseUrl(options.domain),
     headers: { 'Authorization': `Token ${token}` }
   });
 
-  if (debug) {
+  if (options.debug) {
     instance.interceptors.request.use(config => {
-      console.error(`[DEBUG] ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
-      console.error(`[DEBUG] Params: ${JSON.stringify(config.params)}`);
+      console.error(`[DEBUG] Request: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
       return config;
     });
   }
@@ -27,14 +37,12 @@ const getClient = (debug = false) => {
 };
 
 /**
- * Enhanced Smart Routing: 
  * Resolves Nicknames (e.g. "Home") OR GIDs.
  */
-const resolveBoxGid = async (input, debug) => {
-  const client = getClient(debug);
+const resolveBoxGid = async (input, options) => {
+  const client = getClient(options);
   const { data: boxes } = await client.get('/boxes');
 
-  // 1. If no input, check env var or auto-discover
   if (!input) {
     const envGid = process.env.FIREWALLA_BOX_GID;
     if (envGid) return envGid;
@@ -44,11 +52,9 @@ const resolveBoxGid = async (input, debug) => {
     process.exit(1);
   }
 
-  // 2. Try to match by GID first
   const matchByGid = boxes.find(b => b.gid === input);
   if (matchByGid) return matchByGid.gid;
 
-  // 3. Try to match by Name (case-insensitive)
   const matchByName = boxes.find(b => b.name.toLowerCase() === input.toLowerCase());
   if (matchByName) return matchByName.gid;
 
@@ -56,14 +62,10 @@ const resolveBoxGid = async (input, debug) => {
   process.exit(1);
 };
 
-/**
- * Helper to load JSON from string OR file (@path/to/file)
- */
 const loadJson = (input) => {
   if (!input) return {};
   if (input.startsWith('@')) {
-    const filePath = input.substring(1);
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    return JSON.parse(fs.readFileSync(input.substring(1), 'utf8'));
   }
   return JSON.parse(input);
 };
