@@ -14,8 +14,16 @@ Designed for both human operators and AI agents, `fw` outputs structured JSON by
 The `fw` CLI requires a valid Firewalla MSP API token to authenticate requests. You can provide your token using one of the following methods:
 
 ### Method 1: Environment Variable (Recommended for AI Agents & CI/CD)
-Export your Personal Access Token (PAT) directly into your shell environment. AI agents should be configured to inject this variable into their execution environment.
+Export your API token directly into your shell environment. AI agents should be configured to inject this variable into their execution environment. This is the cleanest method for headless environments as it leaves no credential files on the disk.
 
 ```bash
 export FIREWALLA_TOKEN="your_msp_api_token_here"
 fw boxes list
+
+### Method 2: The .env File (Recommended for Humans)
+Create a .env file in your project root. The CLI will automatically load your token from this file if it is not already set in your environment.
+
+```.env
+```FIREWALLA_TOKEN=your_msp_api_token_here
+# Optional: Set a default box so you can stop typing --box every 5 seconds
+FIREWALLA_BOX_GID=your_box_gid_here
