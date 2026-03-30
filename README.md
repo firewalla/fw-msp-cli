@@ -19,6 +19,7 @@ Export your API token directly into your shell environment. AI agents should be 
 ```
 bash
 export FIREWALLA_TOKEN="your_msp_api_token_here"
+export FIREWALLA_DOMAIN="your_subdomain_here.firewalla.net"
 fw boxes list
 ```
 
@@ -30,6 +31,7 @@ Create a .env file in your project root. The CLI will automatically load your to
 ```
 ```
 FIREWALLA_TOKEN=your_msp_api_token_here
+export FIREWALLA_DOMAIN="your_subdomain_here.firewalla.net"
 # Optional: Set a default box so you can stop typing --box every 5 seconds
 FIREWALLA_BOX_GID=your_box_gid_here
 ```
