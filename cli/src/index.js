@@ -9,9 +9,9 @@ program
   .name('fw')
   .description('Firewalla MSP CLI')
   .version('1.0.0')
-  .option('-v, --debug', 'Output debug info to stderr', false); // Global debug flag
+  .option('-v, --debug', 'Output debug info', false)
+  .option('-d, --domain <domain>', 'MSP Domain (e.g. company.firewalla.net)');
 
-// Alarms Domain
 const alarms = program.command('alarms').description('Manage network alarms');
 
 alarms
@@ -19,8 +19,7 @@ alarms
   .option('--box <name|gid>', 'Box Name or GID')
   .option('--params <json>', 'API filters')
   .action((options) => {
-    // Merge global debug flag into command options
-    Alarms.list({ ...options, debug: program.opts().debug });
+    Alarms.list({ ...options, ...program.opts() });
   });
 
 alarms
@@ -29,7 +28,7 @@ alarms
   .option('--box <name|gid>', 'Box Name or GID')
   .option('--json <json|@file>', 'JSON body or @file.json')
   .action((options) => {
-    Alarms.update(options.id, { ...options, debug: program.opts().debug });
+    Alarms.update(options.id, { ...options, ...program.opts() });
   });
 
 program.parse(process.argv);
