@@ -1,6 +1,9 @@
-# Firewalla MSP CLI (`fw`)
+# fw-msp-cli
 
-A stateless, AI-native command-line interface for the Firewalla MSP API. 
+A new CLI for all of Firewalla MSP to simplify your MSP API.
+
+> [!NOTE]
+> This is **not** an officially supported Firewalla product.
 
 Designed for both human operators and AI agents, `fw` outputs structured JSON by default, and relies on RESTful 1:1 API mappings.
 
