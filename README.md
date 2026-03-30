@@ -18,12 +18,15 @@ Export your API token directly into your shell environment. AI agents should be 
 
 ```bash
 export FIREWALLA_TOKEN="your_msp_api_token_here"
-fw boxes list```
+fw boxes list
+```
 
 ### Method 2: The .env File (Recommended for Humans)
 Create a .env file in your project root. The CLI will automatically load your token from this file if it is not already set in your environment.
 
-```.env```
+```.env
+```
 ```FIREWALLA_TOKEN=your_msp_api_token_here
 # Optional: Set a default box so you can stop typing --box every 5 seconds
-FIREWALLA_BOX_GID=your_box_gid_here```
+FIREWALLA_BOX_GID=your_box_gid_here
+```
