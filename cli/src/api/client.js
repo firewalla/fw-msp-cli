@@ -1,10 +1,5 @@
 const axios = require('axios');
-const fs = require('fs');
 
-/**
- * Construct the Base URL
- * Priority: 1. Global Flag, 2. Env Var, 3. Default
- */
 const getBaseUrl = (domain) => {
   const targetDomain = domain || process.env.FIREWALLA_DOMAIN || 'api.firewalla.net';
   const cleanDomain = targetDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
@@ -36,9 +31,6 @@ const getClient = (options = {}) => {
   return instance;
 };
 
-/**
- * Resolves Nicknames (e.g. "Home") OR GIDs.
- */
 const resolveBoxGid = async (input, options) => {
   const client = getClient(options);
   const { data: boxes } = await client.get('/boxes');
@@ -62,12 +54,4 @@ const resolveBoxGid = async (input, options) => {
   process.exit(1);
 };
 
-const loadJson = (input) => {
-  if (!input) return {};
-  if (input.startsWith('@')) {
-    return JSON.parse(fs.readFileSync(input.substring(1), 'utf8'));
-  }
-  return JSON.parse(input);
-};
-
-module.exports = { getClient, resolveBoxGid, loadJson };
+module.exports = { getClient, resolveBoxGid };
