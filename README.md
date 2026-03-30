@@ -18,8 +18,8 @@ Export your PAT (Personal Access Token) directly into your shell environment. AI
 
 ```
 bash
-export FIREWALLA_MSP_TOKEN="your_msp_api_token_here"
-export FIREWALLA_MSP_ID="your_subdomain.firewalla.net"
+export FIREWALLA_MSP_TOKEN=your_msp_api_token_here
+export FIREWALLA_MSP_ID=your_subdomain.firewalla.net
 fw boxes list
 ```
 
@@ -31,7 +31,7 @@ Create a .env file in your project root. The CLI will automatically load your to
 ```
 ```
 FIREWALLA_MSP_TOKEN=your_msp_api_token_here
-FIREWALLA_MSP_ID="your_subdomain.firewalla.net"
+FIREWALLA_MSP_ID=your_subdomain.firewalla.net
 # Optional: Set a default box so you can stop typing --box every 5 seconds
 FIREWALLA_BOX_GID=your_box_gid_here
 ```
