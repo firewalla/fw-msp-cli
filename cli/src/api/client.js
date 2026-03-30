@@ -3,6 +3,16 @@ const axios = require('axios');
 const getBaseUrl = (domain) => {
   const targetDomain = domain || process.env.FIREWALLA_DOMAIN || 'api.firewalla.net';
   const cleanDomain = targetDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  
+  // Security: Only allow Firewalla domains to prevent token theft
+  if (!cleanDomain.endsWith('.firewalla.net') && cleanDomain !== 'api.firewalla.net') {
+    console.error(JSON.stringify({ 
+      error: "Invalid domain", 
+      hint: "For security, only *.firewalla.net domains are allowed" 
+    }));
+    process.exit(1);
+  }
+  
   return `https://${cleanDomain}/v2`;
 };
 

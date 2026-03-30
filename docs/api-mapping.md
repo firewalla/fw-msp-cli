@@ -714,27 +714,27 @@
 {
   "results": [
     {
-      "gid": "833f2dca-d16a-4b1e-9ad0-67f71bc5a0ef",
-      "aid": 16977,
+      "gid": "00000000-0000-0000-0000-000000000000",
+      "aid": 12345,
       "status": 1,
-      "ts": 1774867984.892,
+      "ts": 1730447700.000,
       "type": 12,
       "count": 1,
       "_type": "ALARM_VPN_RESTORE",
-      "activeTs": 1774867984.892,
+      "activeTs": 1730447700.000,
       "cloudaction": "",
       "vpn": {
         "deviceCount": 0,
-        "id": "8888_8888",
-        "name": "ipsec_test2",
+        "id": "vpn_example",
+        "name": "Example VPN",
         "strict": false,
         "subType": "",
         "type": "ipsec"
       },
-      "message": "3rd-Party VPN (IPsec) to ipsec_test2 is restored at 03:53 AM. Internet access on 0 device(s) is resumed."
+      "message": "3rd-Party VPN (IPsec) to Example VPN is restored. Internet access on 0 device(s) is resumed."
     }
   ],
-  "next_cursor": "b2Zmc2V0IDM=",
+  "next_cursor": "example_cursor_value",
   "count": 1
 }
 ```
