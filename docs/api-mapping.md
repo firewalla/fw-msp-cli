@@ -838,24 +838,6 @@
   ]
 }
 ```
-
-### Archive an Alarm
-
-**Input:** `fw alarms update --id <Alarm ID> --json '{"status": "archived"}'`  
-**API:** `PUT /v2/alarms/<Alarm ID>` with payload `{"status": "archived"}`
-
-**Example:** `fw alarms update --id alm_1a2b --json '{"status": "archived"}'`  
-**API:** `PUT /v2/alarms/alm_1a2b` with payload `{"status": "archived"}`  
-**Output:** Archives a specific alarm so it no longer shows up as active.
-
-```json
-{
-  "id": "alm_1a2b",
-  "status": "archived",
-  "message": "Malware site blocked"
-}
-```
-
 ---
 
 ## Environment Variables
