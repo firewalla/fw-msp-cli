@@ -25,16 +25,6 @@ Fetches a list of alarms. Use `--params` to filter the results based on the API 
 * Combine filters (Active alarms for a specific device, limit 5):
   `fw alarms list --params '{"status": "active", "query": "device.id:AA:BB:CC:DD:EE:FF", "limit": 5}'`
 
-### Update Alarm
-Updates a specific alarm's metadata. This is most commonly used to archive an alarm.
-*Note: This is a PUT request, so the payload is passed via `--json`, not `--params`.*
-
-**Syntax:** `fw alarms update --id <ALARM_ID> --json '<PAYLOAD>'`
-
-**Examples:**
-* Archive an active alarm so it no longer triggers alerts:
-  `fw alarms update --id alm_1a2b --json '{"status": "archived"}'`
-
 ## Typical Agent Workflow
 If a user asks you to "check for security issues on the network":
 1. Run `fw alarms list --params '{"status": "active"}'`.
