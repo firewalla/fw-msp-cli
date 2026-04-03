@@ -31,18 +31,18 @@ Edit `config.json`:
 
 | Field | Description |
 |-------|-------------|
-| `baseUrl` | API endpoint (e.g., `https://api.openai.com/v1`) |
-| `format` | API format: `"openai"` or `"anthropic"` |
+| `baseUrl` | API endpoint (must be OpenAI-compatible) |
 | `apiKey` | Your API key |
 | `model` | Model name to use |
 
 ### Provider Examples
 
+All providers must use OpenAI-compatible format:
+
 #### OpenAI
 ```json
 {
   "baseUrl": "https://api.openai.com/v1",
-  "format": "openai",
   "apiKey": "sk-...",
   "model": "gpt-4o"
 }
@@ -52,17 +52,15 @@ Edit `config.json`:
 ```json
 {
   "baseUrl": "https://openrouter.ai/api/v1",
-  "format": "openai",
   "apiKey": "sk-or-...",
   "model": "meta-llama/llama-3.1-8b-instruct:free"
 }
 ```
 
-#### Anthropic Claude
+#### Anthropic Claude (via OpenAI-compatible proxy)
 ```json
 {
-  "baseUrl": "https://api.anthropic.com/v1",
-  "format": "anthropic",
+  "baseUrl": "https://api.anthropic.com/v1",  // Only if using a proxy that converts to OpenAI format
   "apiKey": "sk-ant-...",
   "model": "claude-3-5-sonnet-20241022"
 }
@@ -72,7 +70,6 @@ Edit `config.json`:
 ```json
 {
   "baseUrl": "http://localhost:11434/v1",
-  "format": "openai",
   "apiKey": "ollama",
   "model": "llama3.1"
 }
@@ -114,9 +111,8 @@ The AI analyzes each alarm and recommends:
 
 ## Adding Custom LLMs
 
-Any LLM with an OpenAI-compatible or Anthropic-compatible API will work. Simply specify:
+Any LLM with an OpenAI-compatible API will work. Simply specify:
 - `baseUrl`: The API endpoint
-- `format`: Either `"openai"` or `"anthropic"`
 - `apiKey`: Your authentication token
 - `model`: The model identifier
 
@@ -127,3 +123,4 @@ Any LLM with an OpenAI-compatible or Anthropic-compatible API will work. Simply 
 - Azure OpenAI
 - Google Gemini (via compatible endpoint)
 - Any vLLM/LiteLLM server
+- Anthropic Claude (via OpenAI-compatible proxy)

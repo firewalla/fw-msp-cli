@@ -25,13 +25,13 @@ const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
  * Call AI to analyze an alarm
  */
 async function analyzeAlarm(alarm) {
-  // Require baseUrl and format in config
-  if (!config.baseUrl || !config.format) {
-    throw new Error('config.json must include baseUrl and format');
+  // Require baseUrl in config (format is always openai now)
+  if (!config.baseUrl) {
+    throw new Error('config.json must include baseUrl');
   }
   const provider = {
     baseUrl: config.baseUrl,
-    format: config.format
+    format: 'openai'
   };
 
   const prompt = `You are a network security analyst. Analyze this Firewalla alarm and respond with ONLY a JSON object (no markdown, no explanation).
@@ -55,13 +55,7 @@ Guidelines:
 - "ignore" for low-risk or informational alarms`;
 
   try {
-    let response;
-    
-    if (provider.format === 'anthropic') {
-      response = await callAnthropic(provider.baseUrl, prompt);
-    } else {
-      response = await callOpenAICompatible(provider.baseUrl, prompt, provider);
-    }
+    const response = await callOpenAICompatible(provider.baseUrl, prompt, provider);
     
     // Parse the AI response
     const content = response.choices?.[0]?.message?.content || response.content?.[0]?.text || '';
@@ -96,23 +90,6 @@ async function callOpenAICompatible(baseUrl, prompt, provider = {}) {
   return response.data;
 }
 
-/**
- * Call Anthropic API
- */
-async function callAnthropic(baseUrl, prompt) {
-  const response = await axios.post(`${baseUrl}/messages`, {
-    model: config.model,
-    max_tokens: 1024,
-    messages: [{ role: 'user', content: prompt }]
-  }, {
-    headers: {
-      'x-api-key': config.apiKey,
-      'anthropic-version': '2023-06-01',
-      'Content-Type': 'application/json'
-    }
-  });
-  return response.data;
-}
 
 /**
  * Fetch alarms using the fw CLI
