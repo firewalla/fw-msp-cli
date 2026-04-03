@@ -151,8 +151,25 @@ USAGE:
   node alarm-processor.js [options]
 
 OPTIONS:
-  --limit=N     Process only the N most recent alarms (default: all)
-  --help, -h    Show this help message
+  --limit=N              Process only the N most recent alarms (default: all)
+  --alarm_type=TYPE      Filter alarms by number or description:
+                            1  Security Activity
+                            2  Abnormal Upload
+                            3  Large Bandwidth Usage
+                            4  Monthly Data Plan
+                            5  New Device
+                            6  Device Back Online
+                            7  Device Offline
+                            8  Video Activity
+                            9  Gaming Activity
+                           10  Porn Activity
+                           11  VPN Activity
+                           12  VPN Connection Restored
+                           13  VPN Connection Error
+                           14  Open Port
+                           15  Internet Connectivity Update
+                           16  Large Upload
+  --help, -h             Show this help message
 
 SETUP:
   Requires ~/llm_config.json with:
@@ -167,8 +184,11 @@ SETUP:
     FIREWALLA_MSP_ID      Your MSP domain (e.g. company.firewalla.net)
 
 EXAMPLES:
-  node alarm-processor.js                  # Analyze all alarms
-  node alarm-processor.js --limit=10       # Analyze 10 most recent alarms
+  node alarm-processor.js                        # Analyze all alarms
+  node alarm-processor.js --limit=10             # Analyze 10 most recent alarms
+  node alarm-processor.js --alarm_type=9         # Gaming alarms (by number)
+  node alarm-processor.js --alarm_type=1         # Security alarms
+  node alarm-processor.js --limit=20 --alarm_type=16  # Combined
 `);
       process.exit(0);
     }
@@ -211,16 +231,23 @@ async function main() {
     }
   }
   
+  const alarmType = cliArgs.alarm_type;
+  const alarmTypeNum = alarmType !== undefined ? parseInt(alarmType) : NaN;
+
   console.log(`Fetching ${limitLog} alarms...`);
-  const alarms = fetchAlarms(limitParam);
-  
+  let alarms = fetchAlarms(limitParam);
+
+  if (alarmType) {
+    alarms = alarms.filter(a => !isNaN(alarmTypeNum) ? a.type === alarmTypeNum : a._type === alarmType);
+  }
+
   if (alarms.length === 0) {
     console.log('No alarms found.');
     return;
   }
-  
-  console.log(`Found ${alarms.length} alarms.\n`);
-  
+
+  console.log(`Found ${alarms.length} alarms${alarmType ? ` of type ${alarmType}` : ''}.\n`);
+
   // Process each alarm
   for (let i = 0; i < alarms.length; i++) {
     if (i > 0) await new Promise(r => setTimeout(r, 1000));
