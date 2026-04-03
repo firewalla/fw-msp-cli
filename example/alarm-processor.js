@@ -169,6 +169,9 @@ OPTIONS:
                            14  Open Port
                            15  Internet Connectivity Update
                            16  Large Upload
+  --alarm_subtype=TYPE   Filter by _type string (client-side). Known subtypes for type 1:
+                           ALARM_INTEL
+                           ALARM_CUSTOMIZED_SECURITY
   --help, -h             Show this help message
 
 SETUP:
@@ -184,11 +187,12 @@ SETUP:
     FIREWALLA_MSP_ID      Your MSP domain (e.g. company.firewalla.net)
 
 EXAMPLES:
-  node alarm-processor.js                        # Analyze all alarms
-  node alarm-processor.js --limit=10             # Analyze 10 most recent alarms
-  node alarm-processor.js --alarm_type=9         # Gaming alarms (by number)
-  node alarm-processor.js --alarm_type=1         # Security alarms
-  node alarm-processor.js --limit=20 --alarm_type=16  # Combined
+  node alarm-processor.js                                              # Analyze all alarms
+  node alarm-processor.js --limit=10                                   # Analyze 10 most recent alarms
+  node alarm-processor.js --alarm_type=9                               # Gaming alarms
+  node alarm-processor.js --alarm_type=1                               # All security alarms
+  node alarm-processor.js --alarm_type=1 --alarm_subtype=ALARM_INTEL  # Intel security alarms only
+  node alarm-processor.js --limit=20 --alarm_type=16                  # Combined
 `);
       process.exit(0);
     }
@@ -240,15 +244,21 @@ async function main() {
 
   const limitParam = Object.keys(apiParams).length ? `--params '${JSON.stringify(apiParams)}'` : '';
 
-  console.log(`Fetching ${limitLog} alarms${alarmType ? ` of type ${alarmType}` : ''}...`);
-  const alarms = fetchAlarms(limitParam);
+  const alarmSubtype = cliArgs.alarm_subtype;
+
+  console.log(`Fetching ${limitLog} alarms${alarmType ? ` of type ${alarmType}` : ''}${alarmSubtype ? ` / subtype ${alarmSubtype}` : ''}...`);
+  let alarms = fetchAlarms(limitParam);
+
+  if (alarmSubtype) {
+    alarms = alarms.filter(a => a._type === alarmSubtype);
+  }
 
   if (alarms.length === 0) {
     console.log('No alarms found.');
     return;
   }
 
-  console.log(`Found ${alarms.length} alarms${alarmType ? ` of type ${alarmType}` : ''}.\n`);
+  console.log(`Found ${alarms.length} alarms.\n`);
 
   // Process each alarm
   for (let i = 0; i < alarms.length; i++) {
