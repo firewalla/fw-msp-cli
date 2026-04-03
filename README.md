@@ -1,4 +1,4 @@
-# fw-msp-cli
+# fw-msp-cli (Work in Progress)
 
 A new CLI for all of Firewalla MSP to simplify your MSP API.
 
