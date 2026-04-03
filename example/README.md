@@ -44,7 +44,7 @@ Edit `config.json`:
   "baseUrl": "https://api.openai.com/v1",
   "format": "openai",
   "apiKey": "sk-...",
-  "model": "gpt-4o-mini"
+  "model": "gpt-4o"
 }
 ```
 
@@ -54,7 +54,7 @@ Edit `config.json`:
   "baseUrl": "https://openrouter.ai/api/v1",
   "format": "openai",
   "apiKey": "sk-or-...",
-  "model": "meta-llama/llama-3-8b-instruct:free"
+  "model": "meta-llama/llama-3.1-8b-instruct:free"
 }
 ```
 
@@ -64,7 +64,7 @@ Edit `config.json`:
   "baseUrl": "https://api.anthropic.com/v1",
   "format": "anthropic",
   "apiKey": "sk-ant-...",
-  "model": "claude-3-haiku-20240307"
+  "model": "claude-3-5-sonnet-20241022"
 }
 ```
 
@@ -74,7 +74,7 @@ Edit `config.json`:
   "baseUrl": "http://localhost:11434/v1",
   "format": "openai",
   "apiKey": "ollama",
-  "model": "llama3"
+  "model": "llama3.1"
 }
 ```
 
