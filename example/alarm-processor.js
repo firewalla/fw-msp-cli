@@ -27,7 +27,11 @@ const AI_PROVIDERS = {
   },
   openrouter: {
     baseUrl: 'https://openrouter.ai/api/v1',
-    format: 'openai'
+    format: 'openai',
+    headers: {
+      'HTTP-Referer': 'https://github.com/hhirokazu/fw-msp-cli',
+      'X-Title': 'Firewalla Alarm Processor'
+    }
   },
   ollama: {
     baseUrl: 'http://localhost:11434/v1',
@@ -74,7 +78,7 @@ Guidelines:
     if (provider.format === 'anthropic') {
       response = await callAnthropic(provider.baseUrl, prompt);
     } else {
-      response = await callOpenAICompatible(provider.baseUrl, prompt);
+      response = await callOpenAICompatible(provider.baseUrl, prompt, provider);
     }
     
     // Parse the AI response
@@ -96,7 +100,7 @@ Guidelines:
 /**
  * Call OpenAI-compatible API (OpenAI, OpenRouter, Ollama, etc.)
  */
-async function callOpenAICompatible(baseUrl, prompt) {
+async function callOpenAICompatible(baseUrl, prompt, provider = {}) {
   const response = await axios.post(`${baseUrl}/chat/completions`, {
     model: config.model,
     messages: [{ role: 'user', content: prompt }],
@@ -104,7 +108,8 @@ async function callOpenAICompatible(baseUrl, prompt) {
   }, {
     headers: {
       'Authorization': `Bearer ${config.apiKey}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...(provider.headers || {})
     }
   });
   return response.data;
