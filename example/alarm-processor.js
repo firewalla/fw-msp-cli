@@ -117,9 +117,9 @@ async function callAnthropic(baseUrl, prompt) {
 /**
  * Fetch alarms using the fw CLI
  */
-function fetchAlarms(limit = 10) {
+function fetchAlarms(limitParam = '') {
   try {
-    const output = execSync(`node ${path.join(__dirname, '..', 'cli', 'src', 'index.js')} alarms list --params '{"limit": ${limit}}'`, {
+    const output = execSync(`node ${path.join(__dirname, '..', 'cli', 'src', 'index.js')} alarms list ${limitParam}`, {
       encoding: 'utf8',
       env: { ...process.env, ...loadEnv() }
     });
@@ -217,10 +217,22 @@ async function main() {
   console.log(`Model: ${config.model}`);
   console.log(`Dry Run: ${config.dryRun ? 'Yes' : 'No'}\n`);
   
-  // Fetch alarms - CLI argument overrides config
-  const limit = parseInt(cliArgs.limit) || config.limit || 10;
-  console.log(`Fetching ${limit} alarms...`);
-  const alarms = fetchAlarms(limit);
+  // Fetch alarms - if --limit provided, use that; otherwise get all alarms
+  let limitParam = '';
+  let limitLog = 'all';
+  if (cliArgs.limit !== undefined) {
+    const limit = parseInt(cliArgs.limit);
+    if (!isNaN(limit) && limit > 0) {
+      limitParam = `--params '{"limit": ${limit}}'`;
+      limitLog = limit.toString();
+    } else {
+      console.error('Invalid limit value. Must be a positive integer.');
+      process.exit(1);
+    }
+  }
+  
+  console.log(`Fetching ${limitLog} alarms...`);
+  const alarms = fetchAlarms(limitParam);
   
   if (alarms.length === 0) {
     console.log('No alarms found.');
