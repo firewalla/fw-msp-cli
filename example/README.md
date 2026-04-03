@@ -8,7 +8,7 @@ AI-powered alarm analysis for Firewalla. Reads alarms, analyzes them with AI, an
 cd example
 cp config.example.json config.json
 # Edit config.json with your AI provider settings
-node alarm-processor.js
+node alarm-processor.js --limit=20
 ```
 
 ## Configuration
@@ -101,7 +101,8 @@ The AI analyzes each alarm and recommends:
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `limit` | Number of alarms to process | 10 |
+| `limit` (config) | Number of alarms to process | 10 |
+| `limit` (CLI) | Override config limit via `--limit=N` | None |
 | `dryRun` | Log actions without executing | true |
 
 ## How It Works

@@ -185,17 +185,40 @@ async function executeAction(alarm, analysis) {
 }
 
 /**
+ * Parse command line arguments
+ */
+function parseArgs() {
+  const args = {};
+  for (let i = 2; i < process.argv.length; i++) {
+    const arg = process.argv[i];
+    if (arg.startsWith('--')) {
+      const [key, value] = arg.slice(2).split('=');
+      if (value !== undefined) {
+        args[key] = value;
+      } else {
+        // Next argument is the value
+        args[key] = process.argv[++i];
+      }
+    }
+  }
+  return args;
+}
+
+/**
  * Main function
  */
 async function main() {
+  // Parse command line arguments
+  const cliArgs = parseArgs();
+  
   console.log('Firewalla Alarm Processor');
   console.log('========================\n');
   console.log(`Provider: ${config.provider}`);
   console.log(`Model: ${config.model}`);
   console.log(`Dry Run: ${config.dryRun ? 'Yes' : 'No'}\n`);
   
-  // Fetch alarms
-  const limit = config.limit || 10;
+  // Fetch alarms - CLI argument overrides config
+  const limit = parseInt(cliArgs.limit) || config.limit || 10;
   console.log(`Fetching ${limit} alarms...`);
   const alarms = fetchAlarms(limit);
   
