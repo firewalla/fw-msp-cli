@@ -31,20 +31,20 @@ Edit `config.json`:
 
 | Field | Description |
 |-------|-------------|
-| `baseUrl` | API endpoint (must be OpenAI-compatible) |
+| `baseUrl` | API endpoint (OpenAI-compatible format) |
 | `apiKey` | Your API key |
 | `model` | Model name to use |
 
 ### Provider Examples
 
-All providers must use OpenAI-compatible format:
+All providers use OpenAI-compatible format:
 
 #### OpenAI
 ```json
 {
   "baseUrl": "https://api.openai.com/v1",
   "apiKey": "sk-...",
-  "model": "gpt-4o"
+  "model": "gpt-5.4"
 }
 ```
 
@@ -53,16 +53,25 @@ All providers must use OpenAI-compatible format:
 {
   "baseUrl": "https://openrouter.ai/api/v1",
   "apiKey": "sk-or-...",
-  "model": "meta-llama/llama-3.1-8b-instruct:free"
+  "model": "nvidia/nemotron-3-super-120b-a12b:free"
 }
 ```
 
-#### Anthropic Claude (via OpenAI-compatible proxy)
+#### Anthropic Claude
 ```json
 {
-  "baseUrl": "https://api.anthropic.com/v1",  // Only if using a proxy that converts to OpenAI format
+  "baseUrl": "https://api.anthropic.com/v1",
   "apiKey": "sk-ant-...",
-  "model": "claude-3-5-sonnet-20241022"
+  "model": "claude-3-7-sonnet-20250219"
+}
+```
+
+#### Google Gemini
+```json
+{
+  "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
+  "apiKey": "AIza...",
+  "model": "gemini-3.1-pro"
 }
 ```
 
@@ -71,7 +80,7 @@ All providers must use OpenAI-compatible format:
 {
   "baseUrl": "http://localhost:11434/v1",
   "apiKey": "ollama",
-  "model": "llama3.1"
+  "model": "llama3.3"
 }
 ```
 
@@ -116,11 +125,11 @@ Any LLM with an OpenAI-compatible API will work. Simply specify:
 - `apiKey`: Your authentication token
 - `model`: The model identifier
 
-**Compatible providers include:**
+**Compatible providers include (all support OpenAI format):**
 - Mistral AI
 - Together AI
 - Groq
 - Azure OpenAI
-- Google Gemini (via compatible endpoint)
+- Google Gemini
+- Anthropic Claude
 - Any vLLM/LiteLLM server
-- Anthropic Claude (via OpenAI-compatible proxy)

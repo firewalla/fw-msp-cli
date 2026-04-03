@@ -2,7 +2,7 @@
   "// OpenAI Example": "",
   "baseUrl": "https://api.openai.com/v1",
   "apiKey": "sk-your-openai-key",
-  "model": "gpt-4o-mini",
+  "model": "gpt-5.4",
   "limit": 10,
   "dryRun": true
 }

@@ -190,7 +190,7 @@ async function main() {
   
   console.log('Firewalla Alarm Processor');
   console.log('========================\n');
-  console.log(`Provider: ${config.provider}`);
+  console.log(`Provider: OpenAI-compatible`);
   console.log(`Model: ${config.model}`);
   console.log(`Dry Run: ${config.dryRun ? 'Yes' : 'No'}\n`);
   
