@@ -169,6 +169,9 @@ OPTIONS:
                            14  Open Port
                            15  Internet Connectivity Update
                            16  Large Upload
+  --alarm_subtype=TYPE   Filter by _type string (client-side). Known subtypes for type 1:
+                           ALARM_INTEL
+                           ALARM_CUSTOMIZED_SECURITY
   --help, -h             Show this help message
 
 SETUP:
@@ -184,11 +187,12 @@ SETUP:
     FIREWALLA_MSP_ID      Your MSP domain (e.g. company.firewalla.net)
 
 EXAMPLES:
-  node alarm-processor.js                        # Analyze all alarms
-  node alarm-processor.js --limit=10             # Analyze 10 most recent alarms
-  node alarm-processor.js --alarm_type=9         # Gaming alarms (by number)
-  node alarm-processor.js --alarm_type=1         # Security alarms
-  node alarm-processor.js --limit=20 --alarm_type=16  # Combined
+  node alarm-processor.js                                              # Analyze all alarms
+  node alarm-processor.js --limit=10                                   # Analyze 10 most recent alarms
+  node alarm-processor.js --alarm_type=9                               # Gaming alarms
+  node alarm-processor.js --alarm_type=1                               # All security alarms
+  node alarm-processor.js --alarm_type=1 --alarm_subtype=ALARM_INTEL  # Intel security alarms only
+  node alarm-processor.js --limit=20 --alarm_type=16                  # Combined
 `);
       process.exit(0);
     }
@@ -217,28 +221,36 @@ async function main() {
   console.log(`Provider: OpenAI-compatible`);
   console.log(`Model: ${config.model}\n`);
   
-  // Fetch alarms - if --limit provided, use that; otherwise get all alarms
-  let limitParam = '';
+  // Build API params
+  const apiParams = {};
   let limitLog = 'all';
+
   if (cliArgs.limit !== undefined) {
     const limit = parseInt(cliArgs.limit);
     if (!isNaN(limit) && limit > 0) {
-      limitParam = `--params '{"limit": ${limit}}'`;
+      apiParams.limit = limit;
       limitLog = limit.toString();
     } else {
       console.error('Invalid limit value. Must be a positive integer.');
       process.exit(1);
     }
   }
-  
+
   const alarmType = cliArgs.alarm_type;
   const alarmTypeNum = alarmType !== undefined ? parseInt(alarmType) : NaN;
+  if (alarmType) {
+    apiParams.query = `type:${!isNaN(alarmTypeNum) ? alarmTypeNum : alarmType}`;
+  }
 
-  console.log(`Fetching ${limitLog} alarms...`);
+  const limitParam = Object.keys(apiParams).length ? `--params '${JSON.stringify(apiParams)}'` : '';
+
+  const alarmSubtype = cliArgs.alarm_subtype;
+
+  console.log(`Fetching ${limitLog} alarms${alarmType ? ` of type ${alarmType}` : ''}${alarmSubtype ? ` / subtype ${alarmSubtype}` : ''}...`);
   let alarms = fetchAlarms(limitParam);
 
-  if (alarmType) {
-    alarms = alarms.filter(a => !isNaN(alarmTypeNum) ? a.type === alarmTypeNum : a._type === alarmType);
+  if (alarmSubtype) {
+    alarms = alarms.filter(a => a._type === alarmSubtype);
   }
 
   if (alarms.length === 0) {
@@ -246,7 +258,7 @@ async function main() {
     return;
   }
 
-  console.log(`Found ${alarms.length} alarms${alarmType ? ` of type ${alarmType}` : ''}.\n`);
+  console.log(`Found ${alarms.length} alarms.\n`);
 
   // Process each alarm
   for (let i = 0; i < alarms.length; i++) {
