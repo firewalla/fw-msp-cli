@@ -19,10 +19,8 @@ Edit `config.json`:
 ```json
 {
   "baseUrl": "https://api.openai.com/v1",
-  "format": "openai",
   "apiKey": "your-api-key",
-  "model": "gpt-4o-mini",
-  "limit": 10,
+  "model": "gpt-5.4",
   "dryRun": true
 }
 ```
