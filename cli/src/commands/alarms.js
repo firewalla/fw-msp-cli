@@ -11,7 +11,7 @@ const Alarms = {
     if (options.params) {
       const parsedParams = JSON.parse(options.params);
       // Filter to only supported parameters (limit, cursor, etc.)
-      const supportedParams = ['limit', 'cursor'];
+      const supportedParams = ['limit', 'cursor', 'query', 'groupBy', 'sortBy'];
       supportedParams.forEach(param => {
         if (parsedParams[param] !== undefined) {
           apiParams[param] = parsedParams[param];

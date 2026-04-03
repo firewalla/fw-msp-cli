@@ -217,29 +217,31 @@ async function main() {
   console.log(`Provider: OpenAI-compatible`);
   console.log(`Model: ${config.model}\n`);
   
-  // Fetch alarms - if --limit provided, use that; otherwise get all alarms
-  let limitParam = '';
+  // Build API params
+  const apiParams = {};
   let limitLog = 'all';
+
   if (cliArgs.limit !== undefined) {
     const limit = parseInt(cliArgs.limit);
     if (!isNaN(limit) && limit > 0) {
-      limitParam = `--params '{"limit": ${limit}}'`;
+      apiParams.limit = limit;
       limitLog = limit.toString();
     } else {
       console.error('Invalid limit value. Must be a positive integer.');
       process.exit(1);
     }
   }
-  
+
   const alarmType = cliArgs.alarm_type;
   const alarmTypeNum = alarmType !== undefined ? parseInt(alarmType) : NaN;
-
-  console.log(`Fetching ${limitLog} alarms...`);
-  let alarms = fetchAlarms(limitParam);
-
   if (alarmType) {
-    alarms = alarms.filter(a => !isNaN(alarmTypeNum) ? a.type === alarmTypeNum : a._type === alarmType);
+    apiParams.query = `type:${!isNaN(alarmTypeNum) ? alarmTypeNum : alarmType}`;
   }
+
+  const limitParam = Object.keys(apiParams).length ? `--params '${JSON.stringify(apiParams)}'` : '';
+
+  console.log(`Fetching ${limitLog} alarms${alarmType ? ` of type ${alarmType}` : ''}...`);
+  const alarms = fetchAlarms(limitParam);
 
   if (alarms.length === 0) {
     console.log('No alarms found.');
