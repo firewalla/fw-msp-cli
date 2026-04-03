@@ -12,7 +12,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Load config
-const configPath = path.join(__dirname, 'config.json');
+const configPath = path.join(process.env.HOME, 'llm_config.json');
 if (!fs.existsSync(configPath)) {
   console.error('Error: config.json not found. Copy config.example.json to config.json and fill in your settings.');
   process.exit(1);
