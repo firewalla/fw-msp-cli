@@ -54,22 +54,31 @@ Guidelines:
 - "delete" for false positives or resolved issues
 - "ignore" for low-risk or informational alarms`;
 
-  try {
-    const response = await callOpenAICompatible(provider.baseUrl, prompt, provider);
-    
-    // Parse the AI response
-    const content = response.choices?.[0]?.message?.content || response.content?.[0]?.text || '';
-    
-    // Extract JSON from response (handle markdown code blocks)
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('No JSON found in AI response');
+  let delay = 2000;
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      const response = await callOpenAICompatible(provider.baseUrl, prompt, provider);
+
+      // Parse the AI response
+      const content = response.choices?.[0]?.message?.content || response.content?.[0]?.text || '';
+
+      // Extract JSON from response (handle markdown code blocks)
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in AI response');
+      }
+
+      return JSON.parse(jsonMatch[0]);
+    } catch (err) {
+      if (err.response?.status === 429 && attempt < 5) {
+        console.warn(`Rate limited, retrying in ${delay / 1000}s... (attempt ${attempt}/5)`);
+        await new Promise(r => setTimeout(r, delay));
+        delay *= 2;
+      } else {
+        console.error('AI analysis failed:', err.message);
+        return { risk_score: 5, action: 'ignore', reason: 'AI analysis failed' };
+      }
     }
-    
-    return JSON.parse(jsonMatch[0]);
-  } catch (err) {
-    console.error('AI analysis failed:', err.message);
-    return { risk_score: 5, action: 'ignore', reason: 'AI analysis failed' };
   }
 }
 
@@ -134,6 +143,35 @@ function parseArgs() {
   const args = {};
   for (let i = 2; i < process.argv.length; i++) {
     const arg = process.argv[i];
+    if (arg === '--help' || arg === '-h') {
+      console.log(`
+Firewalla Alarm Processor - AI-powered alarm analysis
+
+USAGE:
+  node alarm-processor.js [options]
+
+OPTIONS:
+  --limit=N     Process only the N most recent alarms (default: all)
+  --help, -h    Show this help message
+
+SETUP:
+  Requires ~/llm_config.json with:
+    {
+      "baseUrl": "https://api.anthropic.com/v1",
+      "apiKey":  "your-api-key",
+      "model":   "claude-sonnet-4-6"
+    }
+
+  Requires environment variables:
+    FIREWALLA_MSP_TOKEN   Your Firewalla MSP API token
+    FIREWALLA_MSP_ID      Your MSP domain (e.g. company.firewalla.net)
+
+EXAMPLES:
+  node alarm-processor.js                  # Analyze all alarms
+  node alarm-processor.js --limit=10       # Analyze 10 most recent alarms
+`);
+      process.exit(0);
+    }
     if (arg.startsWith('--')) {
       const [key, value] = arg.slice(2).split('=');
       if (value !== undefined) {
@@ -184,12 +222,13 @@ async function main() {
   console.log(`Found ${alarms.length} alarms.\n`);
   
   // Process each alarm
-  for (const alarm of alarms) {
-    const analysis = await analyzeAlarm(alarm);
-    
-    console.log(`\n--- Alarm ${alarm.aid} ---`);
-    console.log(`Type: ${alarm._type}`);
-    console.log(`Message: ${alarm.message}`);
+  for (let i = 0; i < alarms.length; i++) {
+    if (i > 0) await new Promise(r => setTimeout(r, 1000));
+    const analysis = await analyzeAlarm(alarms[i]);
+
+    console.log(`\n--- Alarm ${alarms[i].aid} ---`);
+    console.log(`Type: ${alarms[i]._type}`);
+    console.log(`Message: ${alarms[i].message}`);
     console.log(`AI Analysis:`);
     console.log(`  Risk Score: ${analysis.risk_score}/10`);
     console.log(`  Suggested Action: ${analysis.action}`);
