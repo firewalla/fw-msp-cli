@@ -126,40 +126,6 @@ function loadEnv() {
   return env;
 }
 
-/**
- * Execute action based on AI recommendation
- */
-async function executeAction(alarm, analysis) {
-  const { risk_score, action, reason } = analysis;
-  
-  console.log(`\n--- Alarm ${alarm.aid} ---`);
-  console.log(`Type: ${alarm._type}`);
-  console.log(`Message: ${alarm.message}`);
-  console.log(`AI Analysis: Risk=${risk_score}/10, Action=${action}`);
-  console.log(`Reason: ${reason}`);
-  
-  if (config.dryRun) {
-    console.log('[DRY RUN] Would execute:', action);
-    return { executed: false, action };
-  }
-  
-  // In a real implementation, you would call the Firewalla API here
-  // For now, we just log what would happen
-  switch (action) {
-    case 'block':
-      console.log('[ACTION] Would create firewall rule to block this threat');
-      break;
-    case 'delete':
-      console.log('[ACTION] Would delete this alarm');
-      break;
-    case 'ignore':
-    default:
-      console.log('[ACTION] No action taken');
-      break;
-  }
-  
-  return { executed: true, action };
-}
 
 /**
  * Parse command line arguments
@@ -191,8 +157,7 @@ async function main() {
   console.log('Firewalla Alarm Processor');
   console.log('========================\n');
   console.log(`Provider: OpenAI-compatible`);
-  console.log(`Model: ${config.model}`);
-  console.log(`Dry Run: ${config.dryRun ? 'Yes' : 'No'}\n`);
+  console.log(`Model: ${config.model}\n`);
   
   // Fetch alarms - if --limit provided, use that; otherwise get all alarms
   let limitParam = '';
@@ -219,22 +184,17 @@ async function main() {
   console.log(`Found ${alarms.length} alarms.\n`);
   
   // Process each alarm
-  const results = [];
   for (const alarm of alarms) {
     const analysis = await analyzeAlarm(alarm);
-    const result = await executeAction(alarm, analysis);
-    results.push({ alarm: alarm.aid, ...analysis, ...result });
+    
+    console.log(`\n--- Alarm ${alarm.aid} ---`);
+    console.log(`Type: ${alarm._type}`);
+    console.log(`Message: ${alarm.message}`);
+    console.log(`AI Analysis:`);
+    console.log(`  Risk Score: ${analysis.risk_score}/10`);
+    console.log(`  Suggested Action: ${analysis.action}`);
+    console.log(`  Reason: ${analysis.reason}`);
   }
-  
-  // Summary
-  console.log('\n========================');
-  console.log('Summary:');
-  const blocked = results.filter(r => r.action === 'block').length;
-  const deleted = results.filter(r => r.action === 'delete').length;
-  const ignored = results.filter(r => r.action === 'ignore').length;
-  console.log(`  Blocked: ${blocked}`);
-  console.log(`  Deleted: ${deleted}`);
-  console.log(`  Ignored: ${ignored}`);
 }
 
 // Run if called directly
@@ -245,4 +205,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { analyzeAlarm, fetchAlarms, executeAction };
+module.exports = { analyzeAlarm, fetchAlarms };

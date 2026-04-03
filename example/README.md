@@ -20,8 +20,7 @@ Edit `config.json`:
 {
   "baseUrl": "https://api.openai.com/v1",
   "apiKey": "your-api-key",
-  "model": "gpt-5.4",
-  "dryRun": true
+  "model": "gpt-5.4"
 }
 ```
 
@@ -107,7 +106,6 @@ The AI analyzes each alarm and recommends:
 | Option | Description | Default |
 |--------|-------------|---------|
 | `limit` (CLI) | Number of alarms to process via `--limit=N` | Get all alarms |
-| `dryRun` | Log actions without executing | true |
 
 ## How It Works
 
