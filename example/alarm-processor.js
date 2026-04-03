@@ -19,33 +19,19 @@ if (!fs.existsSync(configPath)) {
 }
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
-// AI Provider configurations
-const AI_PROVIDERS = {
-  openai: {
-    baseUrl: 'https://api.openai.com/v1',
-    format: 'openai'
-  },
-  openrouter: {
-    baseUrl: 'https://openrouter.ai/api/v1',
-    format: 'openai'
-  },
-  ollama: {
-    baseUrl: 'http://localhost:11434/v1',
-    format: 'openai'
-  },
-  anthropic: {
-    baseUrl: 'https://api.anthropic.com/v1',
-    format: 'anthropic'
-  }
-};
+// No hardcoded providers - all configuration comes from config.json
 
 /**
  * Call AI to analyze an alarm
  */
 async function analyzeAlarm(alarm) {
-  const provider = AI_PROVIDERS[config.provider] || { 
-    baseUrl: config.baseUrl, 
-    format: config.format || 'openai' 
+  // Require baseUrl and format in config
+  if (!config.baseUrl || !config.format) {
+    throw new Error('config.json must include baseUrl and format');
+  }
+  const provider = {
+    baseUrl: config.baseUrl,
+    format: config.format
   };
 
   const prompt = `You are a network security analyst. Analyze this Firewalla alarm and respond with ONLY a JSON object (no markdown, no explanation).

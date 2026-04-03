@@ -17,7 +17,8 @@ Edit `config.json`:
 
 ```json
 {
-  "provider": "openai",
+  "baseUrl": "https://api.openai.com/v1",
+  "format": "openai",
   "apiKey": "your-api-key",
   "model": "gpt-4o-mini",
   "limit": 10,
@@ -25,76 +26,64 @@ Edit `config.json`:
 }
 ```
 
-### Built-in Providers
+### Required Fields
 
-| Provider | Config |
-|----------|--------|
-| OpenAI | `"provider": "openai"` |
-| OpenRouter | `"provider": "openrouter"` |
-| Anthropic | `"provider": "anthropic"` |
-| Ollama | `"provider": "ollama"` |
+| Field | Description |
+|-------|-------------|
+| `baseUrl` | API endpoint (e.g., `https://api.openai.com/v1`) |
+| `format` | API format: `"openai"` or `"anthropic"` |
+| `apiKey` | Your API key |
+| `model` | Model name to use |
 
-### Custom Providers
+### Provider Examples
 
-For any OpenAI-compatible API:
-
+#### OpenAI
 ```json
 {
-  "provider": "custom",
+  "baseUrl": "https://api.openai.com/v1",
   "format": "openai",
-  "baseUrl": "https://your-llm.example.com/v1",
-  "apiKey": "your-key",
-  "model": "your-model"
-}
-```
-
-For Anthropic-compatible APIs:
-
-```json
-{
-  "provider": "custom",
-  "format": "anthropic",
-  "baseUrl": "https://your-llm.example.com/v1",
-  "apiKey": "your-key",
-  "model": "your-model"
-}
-```
-
-## AI Provider Examples
-
-### OpenAI
-```json
-{
-  "provider": "openai",
   "apiKey": "sk-...",
   "model": "gpt-4o-mini"
 }
 ```
 
-### OpenRouter (Free Models Available)
+#### OpenRouter (Free Models Available)
 ```json
 {
-  "provider": "openrouter",
+  "baseUrl": "https://openrouter.ai/api/v1",
+  "format": "openai",
   "apiKey": "sk-or-...",
   "model": "meta-llama/llama-3-8b-instruct:free"
 }
 ```
 
-### Anthropic Claude
+#### Anthropic Claude
 ```json
 {
-  "provider": "anthropic",
+  "baseUrl": "https://api.anthropic.com/v1",
+  "format": "anthropic",
   "apiKey": "sk-ant-...",
   "model": "claude-3-haiku-20240307"
 }
 ```
 
-### Ollama (Local)
+#### Ollama (Local)
 ```json
 {
-  "provider": "ollama",
+  "baseUrl": "http://localhost:11434/v1",
+  "format": "openai",
   "apiKey": "ollama",
   "model": "llama3"
+}
+```
+
+#### Custom Provider
+```json
+{
+  "baseUrl": "https://your-llm.example.com/v1",
+  "format": "openai",  // or "anthropic"
+  "apiKey": "your-key",
+  "model": "your-model"
 }
 ```
 
@@ -124,16 +113,16 @@ The AI analyzes each alarm and recommends:
 
 ## Adding Custom LLMs
 
-Most LLM providers support OpenAI-compatible APIs. To add a new provider:
+Any LLM with an OpenAI-compatible or Anthropic-compatible API will work. Simply specify:
+- `baseUrl`: The API endpoint
+- `format`: Either `"openai"` or `"anthropic"`
+- `apiKey`: Your authentication token
+- `model`: The model identifier
 
-1. Check if your provider has an OpenAI-compatible endpoint
-2. Use `"format": "openai"` in config
-3. Set `baseUrl` to your provider's API endpoint
-
-**Compatible providers:**
+**Compatible providers include:**
 - Mistral AI
 - Together AI
 - Groq
 - Azure OpenAI
-- Google Gemini (compatible endpoint)
+- Google Gemini (via compatible endpoint)
 - Any vLLM/LiteLLM server
