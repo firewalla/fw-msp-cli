@@ -85,7 +85,6 @@ All providers use OpenAI-compatible format:
 ```json
 {
   "baseUrl": "https://your-llm.example.com/v1",
-  "format": "openai",  // or "anthropic"
   "apiKey": "your-key",
   "model": "your-model"
 }
