@@ -1,0 +1,250 @@
+#!/usr/bin/env node
+/**
+ * Firewalla Alarm Processor with AI Analysis
+ * 
+ * Reads alarms, analyzes them with AI, and takes action based on risk score.
+ * Supports multiple AI providers: OpenAI, Anthropic, OpenRouter, Ollama
+ */
+
+const axios = require('axios');
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+// Load config
+const configPath = path.join(__dirname, 'config.json');
+if (!fs.existsSync(configPath)) {
+  console.error('Error: config.json not found. Copy config.example.json to config.json and fill in your settings.');
+  process.exit(1);
+}
+const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
+// AI Provider configurations
+const AI_PROVIDERS = {
+  openai: {
+    baseUrl: 'https://api.openai.com/v1',
+    format: 'openai'
+  },
+  openrouter: {
+    baseUrl: 'https://openrouter.ai/api/v1',
+    format: 'openai'
+  },
+  ollama: {
+    baseUrl: 'http://localhost:11434/v1',
+    format: 'openai'
+  },
+  anthropic: {
+    baseUrl: 'https://api.anthropic.com/v1',
+    format: 'anthropic'
+  }
+};
+
+/**
+ * Call AI to analyze an alarm
+ */
+async function analyzeAlarm(alarm) {
+  const provider = AI_PROVIDERS[config.provider] || { 
+    baseUrl: config.baseUrl, 
+    format: config.format || 'openai' 
+  };
+
+  const prompt = `You are a network security analyst. Analyze this Firewalla alarm and respond with ONLY a JSON object (no markdown, no explanation).
+
+Alarm data:
+${JSON.stringify(alarm, null, 2)}
+
+Respond with this exact JSON structure:
+{
+  "risk_score": <number 0-10>,
+  "action": "<block|delete|ignore>",
+  "reason": "<brief explanation>"
+}
+
+Guidelines:
+- risk_score 0-3: Low risk, usually safe activity
+- risk_score 4-6: Medium risk, investigate further
+- risk_score 7-10: High risk, likely malicious
+- "block" for high-risk threats that should be blocked
+- "delete" for false positives or resolved issues
+- "ignore" for low-risk or informational alarms`;
+
+  try {
+    let response;
+    
+    if (provider.format === 'anthropic') {
+      response = await callAnthropic(provider.baseUrl, prompt);
+    } else {
+      response = await callOpenAICompatible(provider.baseUrl, prompt);
+    }
+    
+    // Parse the AI response
+    const content = response.choices?.[0]?.message?.content || response.content?.[0]?.text || '';
+    
+    // Extract JSON from response (handle markdown code blocks)
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No JSON found in AI response');
+    }
+    
+    return JSON.parse(jsonMatch[0]);
+  } catch (err) {
+    console.error('AI analysis failed:', err.message);
+    return { risk_score: 5, action: 'ignore', reason: 'AI analysis failed' };
+  }
+}
+
+/**
+ * Call OpenAI-compatible API (OpenAI, OpenRouter, Ollama, etc.)
+ */
+async function callOpenAICompatible(baseUrl, prompt) {
+  const response = await axios.post(`${baseUrl}/chat/completions`, {
+    model: config.model,
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.1
+  }, {
+    headers: {
+      'Authorization': `Bearer ${config.apiKey}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  return response.data;
+}
+
+/**
+ * Call Anthropic API
+ */
+async function callAnthropic(baseUrl, prompt) {
+  const response = await axios.post(`${baseUrl}/messages`, {
+    model: config.model,
+    max_tokens: 1024,
+    messages: [{ role: 'user', content: prompt }]
+  }, {
+    headers: {
+      'x-api-key': config.apiKey,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json'
+    }
+  });
+  return response.data;
+}
+
+/**
+ * Fetch alarms using the fw CLI
+ */
+function fetchAlarms(limit = 10) {
+  try {
+    const output = execSync(`node ${path.join(__dirname, '..', 'cli', 'src', 'index.js')} alarms list --params '{"limit": ${limit}}'`, {
+      encoding: 'utf8',
+      env: { ...process.env, ...loadEnv() }
+    });
+    const data = JSON.parse(output);
+    return data.results || [];
+  } catch (err) {
+    console.error('Failed to fetch alarms:', err.message);
+    return [];
+  }
+}
+
+/**
+ * Load environment variables from .env file
+ */
+function loadEnv() {
+  const envPath = path.join(__dirname, '..', '.env');
+  const env = {};
+  if (fs.existsSync(envPath)) {
+    const lines = fs.readFileSync(envPath, 'utf8').split('\n');
+    for (const line of lines) {
+      const match = line.match(/^([^=]+)=(.*)$/);
+      if (match) {
+        env[match[1].trim()] = match[2].trim();
+      }
+    }
+  }
+  return env;
+}
+
+/**
+ * Execute action based on AI recommendation
+ */
+async function executeAction(alarm, analysis) {
+  const { risk_score, action, reason } = analysis;
+  
+  console.log(`\n--- Alarm ${alarm.aid} ---`);
+  console.log(`Type: ${alarm._type}`);
+  console.log(`Message: ${alarm.message}`);
+  console.log(`AI Analysis: Risk=${risk_score}/10, Action=${action}`);
+  console.log(`Reason: ${reason}`);
+  
+  if (config.dryRun) {
+    console.log('[DRY RUN] Would execute:', action);
+    return { executed: false, action };
+  }
+  
+  // In a real implementation, you would call the Firewalla API here
+  // For now, we just log what would happen
+  switch (action) {
+    case 'block':
+      console.log('[ACTION] Would create firewall rule to block this threat');
+      break;
+    case 'delete':
+      console.log('[ACTION] Would delete this alarm');
+      break;
+    case 'ignore':
+    default:
+      console.log('[ACTION] No action taken');
+      break;
+  }
+  
+  return { executed: true, action };
+}
+
+/**
+ * Main function
+ */
+async function main() {
+  console.log('Firewalla Alarm Processor');
+  console.log('========================\n');
+  console.log(`Provider: ${config.provider}`);
+  console.log(`Model: ${config.model}`);
+  console.log(`Dry Run: ${config.dryRun ? 'Yes' : 'No'}\n`);
+  
+  // Fetch alarms
+  const limit = config.limit || 10;
+  console.log(`Fetching ${limit} alarms...`);
+  const alarms = fetchAlarms(limit);
+  
+  if (alarms.length === 0) {
+    console.log('No alarms found.');
+    return;
+  }
+  
+  console.log(`Found ${alarms.length} alarms.\n`);
+  
+  // Process each alarm
+  const results = [];
+  for (const alarm of alarms) {
+    const analysis = await analyzeAlarm(alarm);
+    const result = await executeAction(alarm, analysis);
+    results.push({ alarm: alarm.aid, ...analysis, ...result });
+  }
+  
+  // Summary
+  console.log('\n========================');
+  console.log('Summary:');
+  const blocked = results.filter(r => r.action === 'block').length;
+  const deleted = results.filter(r => r.action === 'delete').length;
+  const ignored = results.filter(r => r.action === 'ignore').length;
+  console.log(`  Blocked: ${blocked}`);
+  console.log(`  Deleted: ${deleted}`);
+  console.log(`  Ignored: ${ignored}`);
+}
+
+// Run if called directly
+if (require.main === module) {
+  main().catch(err => {
+    console.error('Error:', err.message);
+    process.exit(1);
+  });
+}
+
+module.exports = { analyzeAlarm, fetchAlarms, executeAction };

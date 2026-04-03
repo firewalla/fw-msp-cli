@@ -1,0 +1,8 @@
+{
+  "// OpenAI": "https://platform.openai.com/api-keys",
+  "provider": "openai",
+  "apiKey": "sk-your-openai-key",
+  "model": "gpt-4o-mini",
+  "limit": 10,
+  "dryRun": true
+}
