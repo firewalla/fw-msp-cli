@@ -27,11 +27,7 @@ const AI_PROVIDERS = {
   },
   openrouter: {
     baseUrl: 'https://openrouter.ai/api/v1',
-    format: 'openai',
-    headers: {
-      'HTTP-Referer': 'https://github.com/hhirokazu/fw-msp-cli',
-      'X-Title': 'Firewalla Alarm Processor'
-    }
+    format: 'openai'
   },
   ollama: {
     baseUrl: 'http://localhost:11434/v1',
@@ -108,8 +104,7 @@ async function callOpenAICompatible(baseUrl, prompt, provider = {}) {
   }, {
     headers: {
       'Authorization': `Bearer ${config.apiKey}`,
-      'Content-Type': 'application/json',
-      ...(provider.headers || {})
+      'Content-Type': 'application/json'
     }
   });
   return response.data;
